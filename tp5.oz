@@ -64,53 +64,64 @@ local R1 R2 L1 L2 in
 end
 
 declare
-fun{NotGate Xs}
-   case Xs of nil then nil
-   [] H|T then
-      if H = 1 then 0|{NotGate T}
-      else 1
-      end
-   end
-end
-fun{OrGate Xs Ys}
-   case Xs of nil then nil
-   [] H|T then
-      case Ys of nil then nil
-      [] X|Y then
-	 if X==1 orelse Y==1 then
-	    1|{OrGate T Y}
-	 else
-	    0|{OrGate T Y}
-	 end
-      end
-   end
-end
-fun{AndGate Xs Ys}
-   case Xs of nil then nil
-   [] H|T then
-      case Ys of nil then nil
-      [] X|Y then
-	 if X==1 andthen Y==1 then
-	    1|{AndGate T Y}
-	 else
-	    0|{AndGate T Y}
-	 end
-      end
-   end
-end
 fun{Simulate G Ss}
-   if {String.toInt G.value}=={String.toInt 'or'} then
-      case G.2 of gate then {Simulate G.2 Ss}
-      []input then
-	 if {String.toInt input.1}=={String.toInt 'x'} then
-	    
-   elseif {String.toInt G.value}=={String.toInt 'and'} then
-      {Simulate G.2 {AndGate Ss.x Ss.y}}
-   else
-      {Simulate G.2 {NotGate Ss.}}
+   fun{NotGate Xs}
+      case Xs of nil then nil
+      [] H|T then
+	 if H==1 then 0|{NotGate T}
+	 else 1
+	 end
+      end
+   end
+   fun{OrGate Xs Ys}
+      case Xs of nil then nil
+      [] H|T then
+	 case Ys of nil then nil
+	 [] X|Y then
+	    if X==1 orelse Y==1 then
+	       1|{OrGate T Y}
+	    else
+	       0|{OrGate T Y}
+	    end
+	 end
+      end
+   end
+   fun{AndGate Xs Ys}
+      case Xs of nil then nil
+      [] H|T then
+	 case Ys of nil then nil
+	 [] X|Y then
+	    if X==1 andthen Y==1 then
+	       1|{AndGate T Y}
+	    else
+	       0|{AndGate T Y}
+	    end
+	 end
+      end
+   end
+in
+   local X Y in
+      if G.value=='or' then
+	 case G.1 of gate then X={Simulate G.2 Ss}
+	 []input then X=input.1
+	 end
+	 case G.2 of gate then Y={Simulate G.3 Ss}
+	 []input then Y=input.1
+	 end
+	 {OrGate Ss.X Ss.Y}
+      elseif G.value=='and' then
+	 case G.1 of gate then X={Simulate G.2 Ss}
+	 []input then X=input.1
+	 end
+	 case G.2 of gate then Y={Simulate G.3 Ss}
+	 []input then Y=input.1
+	 end
+	 {AndGate Ss.x Ss.y}
+      else
+	 case G.1 of input then {NotGate Ss.input.1} end
+      end
    end
 end
-
 local G in
       G=gate(value:'or' gate(value:'and' input(x) input(y)) gate(value:'not' input(z)))
       {Browse {Simulate G input(x:1|0|1|0|nil y:0|1|0|1|nil z:1|1|0|0|nil)}}
