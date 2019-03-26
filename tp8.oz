@@ -36,6 +36,7 @@ proc {RandomSenderManiac N P}
     in
         {Loop 1}
 end
+
 % Exercice 5
 fun {BrowseAll}
     Stream in
@@ -45,4 +46,7 @@ end
 P={BrowseAll}
 {RandomSenderManiac 4 P}
 
-
+% Exercice 6
+fun {WaitTwo X Y}
+    case X of H|T then 1
+TODO: To continue
