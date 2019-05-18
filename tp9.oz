@@ -57,6 +57,7 @@ B = 2
 {Wait Res5}
 {Show Res5}
 {Wait Res6}
+<<<<<<< HEAD
 {Show Res6}
 
 % 2 ième exercice 
@@ -81,3 +82,6 @@ end
 I={StudentCallBack}
 J={ServeurPort}
 {Send I ask(howmany:J)}
+=======
+{Show Res6}
+>>>>>>> 4ac7a8d91888369bddf8f7df435cfa4005bd2ba2
