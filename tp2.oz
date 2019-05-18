@@ -1,99 +1,143 @@
+%Exercice 1.A
 declare
-local L M R Max MaxLoop in
-   Max=proc{$ L ?R} 
-	MaxLoop=proc{$ L M ?R}
-	    case L of nil then M
-	    []H|T then
-	       if M>H then R={MaxLoop T M R}
-	       else R={MaxLoop T H R} end
-	    end
-	 end
-   in
-      if L==nil then error
-      else {MaxLoop L.2 L.1 R}  end
-   end
-end 
-{Browse {Max [4 5 6]}}
+proc{Max L ?Num}
+    proc{MaxLoop L M ?Num}
+        case L of nil then Num=M
+        []H|T then 
+            if M>H then {MaxLoop T M Num}
+            else {MaxLoop T H Num} end
+        end
+    end
+in
+    if L==nil then Num=error
+    else Num={MaxLoop L.2 L.1} end
+end
+local Num={Max [1 2 16 4 5]} in
+    {Browse Num}
+end
 
+%Exercice 1.B
 declare
 fun{Fact N}
-   fun{Fact N Acc1 Acc2}
-      if N==Acc1 then Acc1*Acc2|nil
-      elseif Acc1==1 then Acc1|{Fact N Acc1+1 Acc1}
-      else Acc1*Acc2|{Fact N Acc1+1 Acc1*Acc2} end
-   end
+    fun{Facto N}
+        if N==1 then 1
+        else N*{Facto N-1} end
+    end
 in
-   {Fact N 1 0}
+    if N==1 then 1|nil
+    else {Append {Fact N-1} {Facto N}|nil} end
 end
-{Browse {Fact 4}}
 
+{Browse {Fact 15}}
+
+%Exercice 2.A ce n'est pas tail recursive suite au point 2 :p
 declare
-fun{Sum N}
-   fun{Sum N Acc}
-      if N==0 then Acc
-      else {Sum N-1 Acc+N}
-      end
-   end
+fun{Sum N Acc}
+    if N==0 then Acc
+    else {Sum N-1 Acc+N} end
+end
+
+{Browse {Sum 3 0}}
+
+%Exercice 2.B
+declare
+fun {Append L1 L2}
+    fun {Appendbis L1 L2 Acc}
+        case L1 of nil then Acc|L2
+        [] H|T then {Appendbis T L2 Acc|H}
+        end
+    end
 in
-   {Sum N 0}
+    {Appendbis L1.2 L2 L1.1}
 end
-{Browse {Sum 4}}
 
+{Browse {Append [1 2] [3 4]}}
+
+%Exercice 2.C
 declare
-fun{Append Xs Ys}
-   case Xs of nil then Ys
-   []X|Xr then
-      local Zr Zs in
-	 Zr={Append Xr Ys}
-	 Zs=X|Zr
-      end
-   end
+fun {Fact N}
+    fun{Facto N}
+        if N==1 then 1
+        else N*{Facto N-1} end
+    end
+    fun {FactTail N Acc}
+        if N==1 then {Append 1|nil Acc}
+        else {FactTail N-1 {Append {Facto N}|nil Acc}} end
+    end
+in
+    {FactTail N-1 {Facto N}|nil}
 end
+{Browse {Fact 13}}
 
-{Browse {Append [1 2 5] [3 4]}}
-
+%Exercice 3.A %Le code attend une réponse pour Y afin de réaliser l'addition
 declare
-proc{ForAllTail Xs P}
-   case Xs of nil then skip
-   []H|T then
-      {P Xs}
-      {ForAllTail T P}
-   end
+local X Y in 
+    {Browse 'hello nurse'}
+    X=2+Y
+    {Browse X}
+    Y=40
+end
+%Exercice 3.B %Le code n'attend pas la réponse de Y car il stocke l'endroit en mémoir où se situe Y dès que l'espace est rempli avec une valeur, il l'affiche
+local X Y in
+    {Browse 'hello nurse'}
+    X=sum(2 Y)
+    {Browse X}
+    Y=40
 end
 
+%Exercice 4.A
+declare
 proc {Pairs L E}
-   case L of nil then skip
-   []H|T then
-      {Browse pair(H E)}
-      {Pairs T E}
-   end
+    case L of nil then skip
+    []H|T then
+        {Browse pair(H E)}
+        {Pairs T E}
+    end
 end
-{ForAllTail [a b c d] proc{$ Tail}{Pairs Tail.2 Tail.1} end}
+proc {ForAllTail Xs P}
+    case Xs of nil then skip
+    [] H|T then 
+        {P Xs}
+        {ForAllTail T P}
+    end
+end
+{ForAllTail [a b c d] proc{$ Tail}{Pairs Tail.2 Tail.1}end }
 
+%Exercice 4.B
 declare
-fun{GetElementsInOrder Tree}
-   case Tree of tree(info:I left:nil right:nil) then [I]
-   []tree(info:I left:L right:nil) then {Append {GetElementsInOrder L} [I]}
-   []tree(info:I left:nil right:R) then {Append [I] {GetElementsInOrder R}}
-   []tree(info:I left:L right:R) then {Append {Append{GetElementsInOrder L} [I]} {GetElementsInOrder R}}
-   end
+fun {GetElementsInOrder Tree}
+    local L R in
+        if Tree.left\=nil then
+            L={GetElementsInOrder Tree.left}
+            if Tree.right\=nil then
+                R={GetElementsInOrder Tree.right} 
+                {Append {Append L Tree.info|nil} R}
+            else
+                {Append L Tree.info|nil}
+            end
+        elseif Tree.right\=nil then
+            R={GetElementsInOrder Tree.right}
+            {Append Tree.info|nil R}
+        else 
+            Tree.info|nil
+        end
+    end
 end
+Tree=tree(info:10 left:tree(info:7 left:nil right:tree(info:9 left:nil right:nil)) right:tree(info:18 left:tree(info:14 left:nil right:nil) right:nil))
+{Browse {GetElementsInOrder Tree}}
 
-local Tree in
-   Tree=tree(info:10 left:tree(info:7 left:nil right:nil) right:tree(info:18 left:tree(info:14 left:nil right:nil) right:nil))
-   {Browse {GetElementsInOrder Tree}}
-end
-
+%Exercice 5.A
 declare
-fun{Fib X}
-   if X==0 then 0
-   elseif X<2 then 1
-   else {Fib X-1}+{Fib X-2}
-   end
+fun {Fibonacci N}
+    if N==0 then 0
+    elseif N<2 then 1
+    else 
+        {Fibonacci N-1}+{Fibonacci N-2}
+    end
 end
+{Browse {Fibonacci 35}}
 
-{Browse {Fib 35}}
-
+%Exercice 5.B
 declare
 fun{Fib X}
    fun{Fib X I Acc1 Acc2}
@@ -105,45 +149,75 @@ in
    {Fib X 3 1 1}
 end
 
-{Browse {Fib 100}}
+{Browse {Fib 35}}
 
+%Exercice 6
 declare
 fun{Add B1 B2}
-   fun{In B1 B2}
-      local Z in
-	 case B1 of H1|nil then
-	    Z={AddDigits H1 B2.1 0}
-	    output(list:{Append [Z.sum] nil} carry:Z.carry)
-	 []H1|T1 then
-	    case B2 of H2|T2 then
-	       local R Q in
-		  R={In T1 T2}
-		  Z={AddDigits H1 H2 R.carry}
-		  output(list:{Append [Z.sum] R.list} carry:Z.carry)
-	       end
-	    end
-	 end
-      end
-   end
+    fun{AddDigits D1 D2 CI}
+        local X in
+            X=D1+D2+CI
+            if X==3 then
+                output(sum:1 carry:1)
+            elseif X==2 then
+                output(sum:0 carry:1)
+            elseif X==1 then
+                output(sum:1 carry:0)
+            else
+                output(sum:0 carry:0)
+            end
+        end
+    end
+    fun{AddB B1 B2 C}
+        case B1 of H|T then
+            case B2 of Head|Tail then
+                local X in
+                    X={AddDigits H Head C}
+                    X.sum|{AddB T Tail X.carry}
+                end
+            end
+        [] nil then 
+            if C == 1 then 1|nil
+            else
+                nil
+            end
+        end
+    end
 in
-   local X in
-      X={In B1 B2}
-      if X.carry==1 then
-	 {Append [1] X.list}
-      else
-	 X.list
-      end
-   end
+    {Reverse {AddB {Reverse B1} {Reverse B2} 0}}
 end
-fun{AddDigits D1 D2 CI}
-   local Sum in
-      Sum=D1+D2+CI
-      if Sum>1 then
-	 output(sum:Sum mod 2 carry:1)
-      else
-	 output(sum:Sum mod 2 carry:0)
-      end
-   end
+{Browse {Add [1 1 0 1 1 0] [0 1 0 1 1 1]}}
+
+%Exercice 7
+declare
+fun{Filter L F}
+    case L of H|T then
+        if {F H} then
+            {Filter T F}
+        else
+            H|{Filter T F} 
+        end
+    []nil then nil
+    end
+end
+local X in 
+    X=fun{$ H} if H==2 then true else false end end
+    {Browse {Filter [1 2 3 4] X}}
 end
 
-{Browse {Add [1 1 0 1 1 0] [0 1 0 1 1 1]}}
+%Exercice 8
+declare
+fun{Filter L F}
+    case L of H|T then
+        if {F H} then
+            {Filter T F}
+        else
+            H|{Filter T F} 
+        end
+    []nil then nil
+    end
+end
+local X in 
+    X=fun{$ H} if H mod 2 ==1 then true else false end end
+    {Browse {Filter [1 2 3 4] X}}
+end
