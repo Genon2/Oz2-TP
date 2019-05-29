@@ -1,4 +1,4 @@
-%ex 1
+%ex 1 %version de benoit
 declare
 proc {NewPort S P}
     P = {NewCell S}
