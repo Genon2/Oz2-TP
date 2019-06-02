@@ -39,7 +39,7 @@ end
 
 {Browse {Sum 3 0}}
 
-%Exercice 2.B
+%Exercice 2.B | SOLUTION 1
 declare
 fun {Append L1 L2}
     fun {Appendbis L1 L2 Acc}
@@ -52,6 +52,23 @@ in
 end
 
 {Browse {Append [1 2] [3 4]}}
+
+% SOLUTION2 : Une autre solution pour Append ==>
+declare
+proc {Append L1 L2 L3}
+    case L1 of nil then L3=L2
+    else case L1 of H|T then
+            local T3 in 
+                L3 = H|T3
+                {Append T L2 T3}
+            end
+        end
+    end
+end
+local R in
+   {Append [1 2 3][4 5 6] R}
+   {Browse R}
+end
 
 %Exercice 2.C
 declare
