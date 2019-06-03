@@ -12,7 +12,7 @@ local X Y Z in
     {Browse X}
 end
 %Exercice 1.B
-local X Y Z in % Le programme plante car il attend l'assignation de Y et Z
+local X Y Z in 
     thread X = Y+Z end
     Y=1
     Z=2
