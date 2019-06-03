@@ -90,30 +90,26 @@ end
 %Exercice 5
 declare 
 fun {Producer N}
-    if N==10 then
+    if N \=10 then % Pour stopper sinon Le compileur plante
         N|{Producer N+1}
     else
-        n
+        N
     end
 end
-
 fun {Consumer S1 Acc}
     case S1 of H|T then
-        H+Acc|{Consumer T Acc+H}
+        if Acc == 0 then {Consumer T H}
+        else
+            Acc|{Consumer T Acc+H}
+        end
+    else Acc
     end
 end
-
-proc {Disp S2}
-   case S2 of X|T2 then
-      {Browse X}
-      {Disp T2}
-   end
-end
-
-declare S1 S2 in
-    thread S1={Producer 1} end
-    thread S2={Consumer S1 0} end
-    thread {Disp S2} end
+local A B in
+    thread A = {Producer 1} end
+    thread B = {Consumer A 0} end
+    thread {Browse A} end
+    thread {Browse B} end
 end
 
 %Exercice 6
