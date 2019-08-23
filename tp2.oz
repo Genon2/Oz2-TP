@@ -86,6 +86,22 @@ in
 end
 {Browse {Fact 13}}
 
+%Une autre manière de faire :
+local
+    fun {Fact N}
+        fun {FactP N I J Acc}
+            if N==0 then {Append Acc J*I|nil}
+            else 
+                {FactP N-1 I+1 J*I {Append Acc J*I|nil}}
+            end
+        end
+    in
+        {FactP N-1 2 1 1|nil}
+    end
+in
+    {Browse {Fact 4}}
+end
+
 %Exercice 3.A %Le code attend une réponse pour Y afin de réaliser l'addition
 declare
 local X Y in 
