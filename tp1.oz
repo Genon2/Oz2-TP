@@ -19,19 +19,19 @@ in
 end
 
 %Exercice 5
-local List
-    proc{Root A B C ?List}
-        local X Y Z W List in
-            X=(B*B)-4*A*C
-            Y={Sqrt {Int.toFloat X}}
-            Z=(~B-Y)div(2*A)
-            W=(~B+Y)div(2*A)
-            List=W|Z|nil
+local L
+    fun{Roots X Y Z}
+        local A B C D in
+            A=(Y*Y)-(4*X*Z)
+            B={Float.toInt {Sqrt {Int.toFloat A}}} % Sqrt se trouve dans la librairie de Float et ne travaille qu'avec eux. On doit donc changer la valeurs en float pour calculer la racine et ensuite on la caste en Integer pour continuer les calcule.
+            C= (~Y - B) div (2*X)
+            D= (~Y + B) div (2*X)
+            [C D]
         end
     end
 in
-    List={Root 1 5 ~150}
-    {Browse List}
+    L={Roots 1 5 ~150}
+    {Browse L}
 end
 
 %Exercice 6
