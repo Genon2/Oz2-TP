@@ -26,45 +26,46 @@ local X Y Z in
 end
 
 %Exercice 2
-declare
-fun{Mine}
-    local X in
-        X={OS.randLimits 1 3}
-        if X==1 then 
-            e|{Mine}
-        elseif X==2 then
-            m|{Mine}
+local S1 S2 
+    fun {Mine N}
+        if N==0 then nil
         else
-            c|{Mine}
-        end
-    end
-end
-
-fun{Counter S1}
-    fun{Parcours Acc Actual}
-        case Acc of H|T then
-            if H.1==Actual then
-                '#'(Actual H.2+1)|T
-            else
-                H|{Parcours T Actual} 
+            local X Y in
+                X={OS.rand}
+                Y=(X mod 3-1)+1
+                case Y of 0 then
+                    e|{Mine N-1}
+                [] 1 then
+                    m|{Mine N-1}
+                [] 2 then
+                    c|{Mine N-1}
+                end
             end
-        [] nil then '#'(Actual 1)|nil
         end
     end
-
-    fun{CounterB S1 Acc}
+    fun {Counter S1 Acc}
+        fun {Parcours X Acc}
+            case Acc of H|T then
+                if X==H.1 then
+                    '#'(1:X 2:H.2+1)|T
+                else
+                    H|{Parcours X T}
+                end
+            [] nil then '#'(1:X 2:1)|nil
+            end
+        end
+    in
         case S1 of H|T then
-            {Parcours Acc H}|{CounterB T {Parcours Acc H}}
-        [] nil then nil
+            local X in 
+                X={Parcours H Acc}
+                X|{Counter T X}
+            end
         end
     end
 in
-    {CounterB S1 nil}
-end
-
-local InS in
-    thread {Browse {Counter InS}} end
-    InS=e|m|e|c|nil
+    thread S1={Mine 50} end
+    thread S2={Counter S1 nil} end
+    {Browse S2}
 end
 
 %Exercice 3
