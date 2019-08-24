@@ -159,6 +159,24 @@ end
 Tree=tree(info:10 left:tree(info:7 left:nil right:tree(info:9 left:nil right:nil)) right:tree(info:18 left:tree(info:14 left:nil right:nil) right:nil))
 {Browse {GetElementsInOrder Tree}}
 
+%Autre solution Code plus propre :
+declare
+fun {GetElementsInOrder Tree}
+    case Tree of tree(info:X left:nil right:nil) then X|nil
+    [] tree(info:X left:Y right:nil) then
+        {Append {GetElementsInOrder Y} X|nil}
+    [] tree(info:X left:nil right:W) then
+        {Append X|nil {GetElementsInOrder W}}
+    [] tree(info:X left:Y right:W) then
+        local Temp in
+            Temp={Append {GetElementsInOrder Y} X|nil}
+            {Append Temp {GetElementsInOrder W}}
+        end
+    end
+end
+Tree=tree(info:10 left:tree(info:7 left:nil right:tree(info:9 left:nil right:nil)) right:tree(info:18 left:tree(info:14 left:nil right:nil) right:nil))
+{Browse {GetElementsInOrder Tree}}
+
 %Exercice 5.A
 declare
 fun {Fibonacci N}
