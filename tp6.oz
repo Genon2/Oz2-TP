@@ -134,7 +134,7 @@ fun lazy {Filter L F}
         if {F H} then H|{Filter T F} else {Filter T F} end
     end
 end
-fun lazy {Map L F}
+fun {Map L F}
     case L of nil then nil
     [] H|T then {F H}|{Map T F}
     end
