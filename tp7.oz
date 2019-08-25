@@ -68,7 +68,6 @@ declare
 %% Delay random time. Print job's type. Bind the flag
 proc {Job Type Flag}
     {Delay {OS.rand} mod 1000}
-    {Browse Type}
     Flag=unit
 end
 
@@ -139,60 +138,51 @@ thread {Browse {WaitOrValue X Y}} end
 
 Y=b
 
-%Exercice 6 %Ne fonctionne pas 
-declare
-fun{Mine}
-    local X in
-        X={OS.randLimits 1 3}
-        if X==1 then 
-            e|{Mine}
-        elseif X==2 then
-            m|{Mine}
+%Exercice 6 %Fonctionne à moitié
+local S1 S2 S3
+    fun {Pipe N}
+        if N==0 then _
         else
-            c|{Mine}
-        end
-    end
-end
-
-fun{Counter S1 S2}
-    fun{Parcours Acc Actual}
-        case Acc of H|T then
-            if H.1==Actual then
-                '#'(Actual H.2+1)|T
-            else
-                H|{Parcours T Actual} 
+            local X Y in
+                X={OS.rand}
+                Y=(X mod 3-1)+1
+                case Y of 0 then
+                    e|{Pipe N-1}
+                [] 1 then
+                    m|{Pipe N-1}
+                [] 2 then
+                    c|{Pipe N-1}
+                end
             end
-        [] nil then '#'(Actual 1)|nil
         end
     end
-
-    fun{CounterB S1 S2 Acc}
-        local Temp={WaitOrValue S2.1 S1.1} in
-            {Browse S2.1}
-            if Temp==1 then
-                {Browse 'S1'}
-                {Parcours Acc S1.1}|{CounterB S1.2 S2 {Parcours Acc S1.1}}
+    fun {Counter S1 S2 Acc}
+        fun {Parcours X Acc}
+            case Acc of H|T then
+                if X==H.1 then
+                    '#'(1:X 2:H.2+1)|T
+                else
+                    H|{Parcours X T}
+                end
+            [] nil then 
+                '#'(1:X 2:1)|nil
+            end
+        end
+    in
+        local Z X Y in
+            Z={Record.waitOr S1.1#S2.1}
+            if Z==1 then
+                X={Parcours S1.1 Acc}
+                X|{Counter S1.2 S2 X}
             else
-                {Browse 'S2'}
-                {Parcours Acc S2.1}|{CounterB S1 S2.2 {Parcours Acc S2.1}}
+                Y={Parcours S2.1 Acc}
+                Y|{Counter S1 S2.2 X}
             end
         end
     end
 in
-    {CounterB S1 S2 nil}
-end
-
-fun {WaitOrValue X Y}
-    Z
-in
-    Z={Record.waitOr X#Y}
-end
-
-local S1 S2 S3 T1 T2 T3 in
-    thread {Browse {Counter S1 S2}} end
-    {Delay 500}
-    S2=m|T2
-    S1=e|T1
-    {Delay 5000}
-    T1=nil
+    thread S1={Pipe 25} end
+    thread S2={Pipe 25} end
+    thread S3={Counter S1 S2 nil} end
+    {Browse S3}
 end
