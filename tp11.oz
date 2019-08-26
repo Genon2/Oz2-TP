@@ -71,19 +71,24 @@ end
 
 %Exercice 4
 declare
-fun {NewPortClose S}
+fun{NewPort S}
     {NewCell S}
 end
 
 proc {Send P Msg}
-    local X in
-        @P=Msg|X
-        P:=X
+    case @P of nil then
+        skip
+    else
+        local X in
+            @P=Msg|X
+            P:=X
+        end
     end
 end
 
 proc {Close P}
     @P=nil
+    P:=nil
 end
 
 local S P X in
@@ -91,8 +96,8 @@ local S P X in
     {Send P 5}
     {Browse S}
     {Send P 6}
-    {Delay 4000}
     {Close P}
+    {Send P 3}
 end
 
 %Exercice 5
