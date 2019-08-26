@@ -59,12 +59,17 @@ B=0-A
 {Wait Res6}
 {Show Res6}
 
-%Exercice 2 J'ai changé casiment toutes les fonctions car ça n'allait pas aussinon
+%Exercice 2 
 declare
-proc {StudentCallBack S}
-    for ask(howmany:P) in S do
-        {Send P {OS.rand} mod 24}
+fun {StudentCallBack}
+    S
+in
+    thread
+        for ask(howmany:P) in S do
+            {Send P {OS.rand} mod 24}
+        end
     end
+    {NewPort S}
 end
 
 fun{CreateUniversity Size}
@@ -78,40 +83,47 @@ in
     {CreateLoop 1}
 end
 
-proc{Reponse List P R}
-    case List of H|T then
-        {Send P ask(howmany:R)}
-        {Reponse T P R}
+proc {Response L P Pbeer}
+    case L of H|T then
+        {Wait H}
+        case H of student then 
+            {Send Pbeer ask(howmany:P)}
+        end
+        {Response T P Pbeer}
     [] nil then skip
     end
 end
-
-proc{Server S}
-    proc{Info S Count Max Min}
-        {Wait S}
-        case S of H|T then 
+fun{Server}
+    S
+    proc {ServerB S Count Mean Max Min}
+        case S of H|T then
             {Wait H}
-            {Browse Count}
-            if H>Max then
-                thread {Info T Count+H H Min} end
-            elseif H<Min then
-                thread {Info T Count+H Max H} end
+            case H of info then
+                {Browse [Count Mean div Count Max Min]}
+                thread {ServerB T Count Mean Max Min} end
             else
-                thread {Info T Count+H Max Min} end
+                if H>Max then
+                    thread {ServerB T Count+1 Mean+H H Min} end
+                elseif H<Min then
+                    thread {ServerB T Count+1 Mean+H Max H} end
+                else
+                    thread {ServerB T Count+1 Mean+H Max Min} end
+                end
             end
         end
     end
-in  
-    {Info S 0 0 0}
+in
+    thread {ServerB S 0 0 0 28} end
+    {NewPort S}
 end
-local S R P C in
-    List={CreateUniversity 5}
-    {NewPort S R}
-    {NewPort C P}
-    {Browse S}
-    thread {StudentCallBack C} end
-    thread {Server S} end
-    thread {Reponse List P R} end
+
+local P Pbeer List in
+    thread List={CreateUniversity 100} end
+    thread Pbeer={StudentCallBack} end
+    thread P={Server} end
+    thread {Response List P Pbeer} end
+    {Delay 4000}
+    {Send P info}
 end
 
 %Exercice 3
