@@ -157,44 +157,58 @@ end
 
 %Exercice 4
 declare
-fun {NewPortObject Behaviour Init}
-    proc{MsgLoop S1 State}
-        case S1 of Msg|S2 then
-            {MsgLoop S2 {Behaviour Msg State}}
-        []nil then skip
-        end
-    end
-    Sin
-in
-    thread {MsgLoop Sin Init} end
-    {NewPort Sin}
-end
 
-fun{NewStack Msg State}
-    case Msg of push(X) then
-        X|State
-    []pop(X) then
-        case State of H|T then 
-            X=H
-            T
-        [] nil then 
-            X=nil
+fun {NewStack}
+    fun {Stack Msg State}
+        case Msg of push(X) then X|State
+        [] pop(?R) then 
+            R = State.1
+            State.2
+        [] isEmpty(?R) then
+            if State == nil then R = true
+            else R=false
+            end
             State
         end
-    []isEmpty(S) then 
-        case State of nil then S=true
-        else
-            S=false
-        end
-        State
     end
+    fun {NewPortObject Fun Init}
+        proc {MsgLoop S1 State}
+            case S1 of Msg|S2 then
+                {MsgLoop S2 {Fun Msg State}}
+            end
+        end
+        Sin
+    in
+        thread {MsgLoop Sin Init} end
+        {NewPort Sin}
+    end
+in
+    {NewPortObject Stack nil}
 end
 
-local P N A in
-    P={NewPortObject NewStack nil}
-    {Send P isEmpty(N)}
-    {Browse N}
-    {Send P push(5)}
-    {Send P pop(A)}
-    {Browse A}
+proc {Push S X}
+    {Send S push(X)}
+end
+
+fun {Pop S}
+    R in
+    {Send S pop(R)}
+    {Wait R}
+    R
+end
+
+fun {IsEmpty S}
+    R in
+    {Send S isEmpty(R)}
+    {Wait R}
+    R
+end
+
+local Pile in
+    Pile = {NewStack}
+    {Push Pile 4}
+    {Push Pile 5}
+    {Browse {Pop Pile}}
+    {Browse {Pop Pile}}
+    {Browse {IsEmpty Pile}}
 end
